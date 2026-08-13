@@ -17,3 +17,7 @@ Thumbs.db
 # Databases
 *.db
 *.sqlite3
+
+# Quarantine logs
+quarantine/
+*.log

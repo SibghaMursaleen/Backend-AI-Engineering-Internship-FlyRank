@@ -1,0 +1,66 @@
+[
+  {
+    "label": "Normal/Obvious",
+    "input": "Backend Developer",
+    "expected": {
+      "canonical_title": ["Backend Engineer"],
+      "level": ["mid"]
+    }
+  },
+  {
+    "label": "Senior Abbreviation",
+    "input": "Sr. SWE II",
+    "expected": {
+      "canonical_title": ["Software Engineer"],
+      "level": ["senior"]
+    }
+  },
+  {
+    "label": "Junior Title",
+    "input": "Junior Python Developer",
+    "expected": {
+      "canonical_title": ["Software Engineer", "Backend Engineer"],
+      "level": ["junior"]
+    }
+  },
+  {
+    "label": "Intern Title",
+    "input": "Software Engineering Intern",
+    "expected": {
+      "canonical_title": ["Software Engineer"],
+      "level": ["intern"]
+    }
+  },
+  {
+    "label": "Messy Title",
+    "input": "lead devops engineer - remote",
+    "expected": {
+      "canonical_title": ["DevOps Engineer"],
+      "level": ["lead"]
+    }
+  },
+  {
+    "label": "Ambiguous Title",
+    "input": "Fullstack Wizard",
+    "expected": {
+      "canonical_title": ["Full Stack Engineer"],
+      "level": ["unknown", "mid"]
+    }
+  },
+  {
+    "label": "Unsure Fallback",
+    "input": "Chief Executive Ninja",
+    "expected": {
+      "canonical_title": ["Other"],
+      "level": ["unknown"]
+    }
+  },
+  {
+    "label": "Non-Engineering Role",
+    "input": "Senior Product Manager",
+    "expected": {
+      "canonical_title": ["Other"],
+      "level": ["senior"]
+    }
+  }
+]
