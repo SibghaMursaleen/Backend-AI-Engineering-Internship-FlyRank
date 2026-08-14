@@ -27,3 +27,24 @@ class NormalizeResponse(BaseModel):
     level: SeniorityLevelEnum = Field(..., description="The seniority level.")
     confidence: float = Field(..., ge=0.0, le=1.0, description="The confidence score of the normalization.")
     reason: str = Field(..., description="Short explanation of the classification.")
+
+from typing import Optional
+
+class JobStatus(str, Enum):
+    QUEUED = "queued"
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+class JobSubmissionResponse(BaseModel):
+    job_id: str
+    status: JobStatus
+
+class JobStatusResponse(BaseModel):
+    job_id: str
+    status: JobStatus
+    result: Optional[NormalizeResponse] = None
+    error: Optional[str] = None
+    attempts: int = Field(0, description="The number of processing attempts made.")
+
+

@@ -4,6 +4,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from src.config import settings
 from src.routes.normalize import router as normalize_router
+from src.routes.jobs import router as jobs_router
 
 # Configure logging
 logging.basicConfig(
@@ -32,6 +33,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 # Include routes
 app.include_router(normalize_router)
+app.include_router(jobs_router)
+
 
 @app.get("/health", status_code=status.HTTP_200_OK)
 def health_check():
