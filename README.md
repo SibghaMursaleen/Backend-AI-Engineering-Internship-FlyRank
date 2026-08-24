@@ -1,4 +1,4 @@
-<h1 align="center">🔷 Backend AI Internship</h1>
+h1 align="center">🔷 Backend AI Internship</h1>
 
 <p align="center">
   A professional repository documenting weekly assignments, hands-on tasks, and AI integrations.<br/>
@@ -9,6 +9,9 @@
   <img src="https://img.shields.io/badge/Internship-FlyRank-blue?style=for-the-badge"/>
   <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white"/>
   <img src="https://img.shields.io/badge/FastAPI-0.100+-009688?style=for-the-badge&logo=fastapi&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Docker-Supported-2496ED?style=for-the-badge&logo=docker&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Postgres-Supported-4169E1?style=for-the-badge&logo=postgresql&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Redis-Supported-DC382D?style=for-the-badge&logo=redis&logoColor=white"/>
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge"/>
 </p>
 
@@ -20,12 +23,16 @@ This repository contains the weekly assignments and implementations completed du
 
 ---
 
-## ⚙️ Weekly Summary
+## ⚙️ How It Works
 
-* **Week 1 (Foundations & Audits):** Focused on core backend foundations, sitemap/toolkit configuration, workflow audits mapping tasks to AI automation potential, and branding thesis.
-* **Week 2 (Fluency & REST APIs):** Focused on professional case studies, systematic prompt engineering frameworks, and building a complete, validated FastAPI-based **Task CRUD API**.
-* **Week 3 (Database Persistence & Containers):** Focused on persisting Task APIs with local **SQLite** databases, containerizing environments with **Docker Compose**, and integrating **PostgreSQL** and **Redis** cache clusters.
-* **Week 4 (Unification & Authentication):** Focused on building a unified backend project supporting In-Memory, SQLite, and PostgreSQL database storage layers with Docker containerization. Layering user authentication via Supabase Auth.
+| Step | Stage | Description |
+|------|-------|-------------|
+| 1 | **Week 1: Foundations & Audits** | Configured **portfolio sitemaps** and audited **workflows** for AI automation potential. |
+| 2 | **Week 2: Fluency & REST APIs** | Developed **prompt engineering frameworks** and built a FastAPI-based **Task CRUD API**. |
+| 3 | **Week 3: Database & Containers** | Added **SQLite persistence** and advanced Dockerized setups with **Postgres** and **Redis**. |
+| 4 | **Week 4: Unification & Auth** | Created a unified multi-DB backend and integrated user authentication via **Supabase**. |
+| 5 | **Week 5: Web Scraping & AI** | Built a polite web scraper and a FastAPI **AI Job Title Normalizer** with evaluation suites. |
+| 6 | **Week 6: Deployment & Critiques** | Implemented deployment practices and prepared systems for critique/review. |
 
 ---
 
@@ -59,33 +66,35 @@ Backend-AI-Internship-FlyRank/
 │   ├── Technology Stack & Empty But Live/          # Tech stack evaluations and empty but live app
 │   └── Unified-Auth-Todo-API/                      # Unified SQLite, Postgres, Redis & Auth CRUD API
 │
-└── .gitignore                                   # Git ignore configuration
+├── week 5/
+│   ├── ai-job-title-normalizer/                   # AI-powered Job Title Normalizer with FastAPI & evals
+│   ├── FL-07/                                     # AI Product Learning Digest Agent setup & workflows
+│   ├── Polite Web Scraper/                        # SQLite-persisted polite web scraper
+│   ├── DNS Walkthrough.pdf                        # Domain Name System (DNS) conceptual guide
+│   ├── Explain It Like You Built It.pdf           # System architectural walkthrough
+│   ├── FL06-Build-Doc.pdf                         # Week 5 system build documentation
+│   └── Ship the Ugly One.pdf                      # MVP design and execution strategy
+│
+└── week 6/
+    ├── Make It Do Something.pdf                   # Core functionality validation guide
+    ├── Open It on Your Phone.pdf                  # Mobile responsiveness & preview walkthrough
+    └── Survive the Crit.pdf                       # Handling peer reviews & system optimization
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🛠️ Tech Stack
 
-To browse or run the projects locally, follow the instructions in each assignment's subdirectory:
-
-### Week 1
-1. [Minimal Python Backend](week%201/Minimal%20Python%20backed%20-%20Assignement%201/README.md)
-2. [Workflow Audit](week%201/Workflow%20Audit%20-%20Assignment%202/README.md)
-3. [Draw the Path](week%201/Draw%20the%20Path%20-%20Portfolio%20Sitemap%20+%20Toolkit%20-%20Assinment%203/README.md)
-4. [What Are You Proving](week%201/What%20are%20you%20Proving%20-%20Assinment%204/README.md)
-
-### Week 2
-1. [Frame It as Cases](week%202/Frame%20It%20as%20Cases%20-%20Assignment%201/README.md)
-2. [The Prompt Ladder](week%202/The%20Prompt%20Ladder%20-%20Assignment%202/README.md)
-3. [Prompting Fundamentals](week%202/Prompting%20Fundamentals%20on%20Real%20Tasks%20-%20Assignment%203/README.md)
-4. [TODO CRUD API Task](week%202/TODO-CRUD-API-Task/README.md)
-
-### Week 3
-1. [SQLite Todo API](week%203/SQLite-TODO-API/README.md)
-2. [Postgres Docker Todo API](week%203/Postgres-Docker-TODO-API/README.md)
-
-### Week 4
-1. [Unified Todo API](week%204/Unified-Auth-Todo-API/README.md)
+| Technology | Role |
+|------------|------|
+| **Python** | Primary backend development language |
+| **FastAPI** | REST API development, routing, and Swagger UI generation |
+| **SQLite** | Local relational database storage for lightweight tasks |
+| **PostgreSQL** | Enterprise relational database storage for unified APIs |
+| **Redis** | In-memory cache layer for API response caching |
+| **Docker** | Containerization of PostgreSQL, Redis, and FastAPI servers |
+| **Supabase** | Cloud authentication and user management layer |
+| **pytest** | Automated test suite and job normalization evaluations |
 
 ---
 
