@@ -1,0 +1,513 @@
+{
+  "name": "PM/Product Learning Digest Agent",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        -80
+      ],
+      "id": "eee4ccc5-5fc0-4d48-ab50-64d734ce15ad",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://productcoalition.com/feed",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -288,
+        -80
+      ],
+      "id": "75c90f10-6593-4342-a65f-15a555b15406",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "url": "https://www.producttalk.org/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -288,
+        -224
+      ],
+      "id": "f33f1cf8-2771-46ac-9339-dceba31ccc84",
+      "name": "RSS Read1",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -16,
+        -160
+      ],
+      "id": "e7c70b9b-c3c9-44f0-bda4-86afd1b0e4d1",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "fileSelector": "C:\\Users\\sibgh\\.n8n-files\\PM-Learning-Agent\\reading-list.md",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -288,
+        112
+      ],
+      "id": "2c0e8dd7-77de-49cb-a202-3f812d13aeef",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "destinationKey": "readingList",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -16,
+        112
+      ],
+      "id": "e9d049e1-2449-4837-91f6-3a9a70bb1163",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nfunction cleanUrl(value) {\n  if (!value) return '';\n\n  const text = String(value).trim();\n\n  // Markdown link: [text](URL)\n  const markdownMatch = text.match(/\\]\\(\\s*(https?:\\/\\/[^)\\s]+)\\s*\\)/);\n\n  if (markdownMatch) {\n    return markdownMatch[1].trim();\n  }\n\n  return text;\n}\n\n// Find the item containing the existing reading list\nconst readingListItem = items.find(item =>\n  item.json.readingList !== undefined\n);\n\nconst readingList = String(\n  readingListItem?.json.readingList || ''\n);\n\n// Extract every URL already present in reading-list.md\nconst seenLinks = new Set();\n\nconst urlMatches = readingList.match(\n  /https?:\\/\\/[^\\s)\\]]+/g\n) || [];\n\nfor (const url of urlMatches) {\n  seenLinks.add(cleanUrl(url));\n}\n\n// Everything else is an RSS article\nconst articles = items.filter(item =>\n  item.json.readingList === undefined\n);\n\n// Keep only genuinely new articles\nconst newArticles = articles.filter(item => {\n  const url = cleanUrl(item.json.link || item.json.url);\n\n  return url && !seenLinks.has(url);\n});\n\nreturn newArticles;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        -48
+      ],
+      "id": "740b446c-3070-4ff8-962c-38a2b48f4dab",
+      "name": "Code in JavaScript",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        208,
+        -48
+      ],
+      "id": "32eda656-d208-468d-9c2c-01a419d475d1",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e6f1b629-e481-4ab0-8c99-38fc493a91de",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "0be2c60a-f976-4b0e-97ed-4d55da968227",
+              "name": "url",
+              "value": "={{ $json.link.replace(/^\\[.*?\\]\\((https?:\\/\\/.*)\\)$/, '$1') }}",
+              "type": "string"
+            },
+            {
+              "id": "2636f7a9-e878-45e4-ad9a-d7c8b45ec5e2",
+              "name": "description",
+              "value": "={{ $json.contentSnippet }}",
+              "type": "string"
+            },
+            {
+              "id": "a1f90cf2-6e20-4028-903d-818088c81b83",
+              "name": "pubDate",
+              "value": "={{ $json.pubDate }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        736,
+        -48
+      ],
+      "id": "9d8a9815-a9ae-420e-97d3-c00a33650e07",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a PM/Product learning curator.\n\nRead the article information below and assign exactly ONE skill tag from this list:\n\nAgile\nPrioritization\nRoadmapping\nStakeholder Management\nProduct Strategy\nMetrics & Analytics\nUser Research\nCommunication\nOther\n\nChoose the single skill that best matches the article.\n\nArticle title:\n{{ $json.title }}\n\nArticle URL:\n{{ $json.url }}\n\nArticle description:\n{{ $json.description }}\n\nArticle publication date\n{{ $json.pubDate }}\n\nReturn only the skill tag. Do not explain your answer.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        896,
+        -240
+      ],
+      "id": "28f4f572-c9cc-4beb-936a-d091f64ef6d9",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1136,
+        -352
+      ],
+      "id": "61761285-2b78-4a0e-8e9d-9a4f8b38a5ac",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "ir35M2aJNigg8CXd",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a3c39080-fdfc-4c90-b52a-3bf460106a72",
+              "name": "skill",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1216,
+        -176
+      ],
+      "id": "55d04192-f0de-4c75-adcb-0f4095d63afc",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1024,
+        96
+      ],
+      "id": "6961cbf1-e5d1-4391-8bd8-af74151249ca",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst lines = [\n  \"# PM/Product Learning Digest\",\n  \"\",\n];\n\nconst groups = {};\n\nfor (const item of items) {\n  const title = String(item.json.title || \"Untitled\").trim();\n  const skill = String(item.json.skill || \"Other\").trim();\n\n  // Get URL\n  const rawUrl = String(item.json.url || \"\").trim();\n\n  // Extract URL from [text](URL), even if the text contains formatting/newlines\n  const markdownMatch = rawUrl.match(/\\]\\(\\s*(https?:\\/\\/[^\\s)]+)\\s*\\)/);\n  const url = markdownMatch ? markdownMatch[1] : rawUrl;\n\n  // Determine source\n  let source = \"Unknown\";\n\n  if (url.includes(\"productcoalition.com\")) {\n    source = \"Product Coalition\";\n  } else if (url.includes(\"producttalk.org\")) {\n    source = \"Product Talk\";\n  }\n\n  // Get date from any available date field\n  const rawDate =\n    item.json.pubDate ||\n    item.json.publishedAt ||\n    item.json.published ||\n    item.json.date ||\n    \"\";\n\n  let date = \"\";\n\n  if (rawDate) {\n    const parsedDate = new Date(rawDate);\n\n    if (!isNaN(parsedDate.getTime())) {\n      date = parsedDate.toLocaleDateString(\"en-GB\", {\n        day: \"2-digit\",\n        month: \"short\",\n        year: \"numeric\"\n      });\n    } else {\n      date = String(rawDate).trim();\n    }\n  }\n\n  if (!groups[skill]) {\n    groups[skill] = [];\n  }\n\n  groups[skill].push({\n    title,\n    source,\n    date,\n    url\n  });\n}\n\n// Build Markdown\nfor (const skill of Object.keys(groups).sort()) {\n  lines.push(`## ${skill}`);\n  lines.push(\"\");\n\n  for (const article of groups[skill]) {\n    lines.push(`### ${article.title}`);\n    lines.push(\"\");\n    lines.push(`Source: ${article.source}`);\n\n    if (article.date) {\n      lines.push(`Date: ${article.date}`);\n    } else {\n      lines.push(`Date: Not available`);\n    }\n\n    lines.push(`Link: ${article.url}`);\n    lines.push(\"\");\n  }\n}\n\nreturn [\n  {\n    json: {\n      filename: \"reading-list.md\",\n      content: lines.join(\"\\n\")\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        96
+      ],
+      "id": "54622490-90c0-4abe-a8ac-51da7b27a4dc",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "content",
+        "binaryPropertyName": "reading-list.md",
+        "options": {
+          "fileName": "reading-list.md"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1392,
+        96
+      ],
+      "id": "dd831c6f-5a89-4e14-bde8-a34a9ce64fe3",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "C:/Users/sibgh/.n8n-files/PM-Learning-Agent/reading-list.md",
+        "dataPropertyName": "reading-list.md",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        1584,
+        -32
+      ],
+      "id": "4cda74c2-2752-4aef-932f-4fae6cbb1d85",
+      "name": "Read/Write Files from Disk1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c5418b66-7a2a-4798-b133-c3e08284d7ca",
+              "leftValue": "={{ $json.title || '' }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        592,
+        -256
+      ],
+      "id": "6e755930-9dd6-415c-9229-11de40c41daf",
+      "name": "If"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "dea06821-3f7c-4f24-b800-c85ad77b2ac9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b8f3f5e18f8f9471f81b9549bc420e425ca715f2188e19c22bdd5c303f278e5c"
+  },
+  "nodeGroups": [],
+  "id": "x2nP3HJbH7Ta73XZ",
+  "tags": []
+}
