@@ -478,7 +478,13 @@ export default function App() {
       });
       if (!res.ok) throw new Error("Failed to start checkout session.");
       const data = await res.json();
-      if (data.checkout_url) {
+      if (data.checkout_url === "mock-checkout") {
+        alert("Running in Sandbox Sandbox Mode (no Stripe key in .env). Automatically upgrading your account to the Pro Plan for sandbox testing!");
+        // Refresh Stats
+        const headers = { "Authorization": `Bearer ${apiKey}` };
+        const resStats = await fetch(`${API_BASE}/v1/usage/summary`, { headers });
+        if (resStats.ok) setSummary(await resStats.json());
+      } else if (data.checkout_url) {
         window.location.href = data.checkout_url;
       }
     } catch (err: any) {

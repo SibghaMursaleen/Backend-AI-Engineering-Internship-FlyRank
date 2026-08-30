@@ -330,6 +330,18 @@ def create_checkout_session(
     customer: Customer = Depends(get_current_customer),
     db: Session = Depends(get_db)
 ):
+    # Check if running with placeholder Stripe keys
+    if settings.STRIPE_API_KEY == "sk_test_placeholder" or not settings.STRIPE_API_KEY.startswith("sk_test"):
+        # Sandbox/Mock upgrade mode: Upgrade customer subscription to Pro directly for local testing
+        sub = db.query(Subscription).filter(
+            Subscription.customer_id == customer.id,
+            Subscription.status == "active"
+        ).first()
+        if sub:
+            sub.plan_id = "pro"
+            db.commit()
+        return {"checkout_url": "mock-checkout"}
+
     try:
         # Create checkout session (Stripe Test Mode)
         checkout_session = stripe.checkout.Session.create(
