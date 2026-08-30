@@ -231,9 +231,34 @@ function PlanCard({
   );
 }
 
+const safeGetLocalStorage = (key: string): string => {
+  try {
+    return localStorage.getItem(key) || "";
+  } catch (e) {
+    console.warn("localStorage access blocked by sandbox:", e);
+    return "";
+  }
+};
+
+const safeSetLocalStorage = (key: string, value: string) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch (e) {
+    console.warn("localStorage write blocked by sandbox:", e);
+  }
+};
+
+const safeRemoveLocalStorage = (key: string) => {
+  try {
+    localStorage.removeItem(key);
+  } catch (e) {
+    console.warn("localStorage remove blocked by sandbox:", e);
+  }
+};
+
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [apiKey, setApiKey] = useState<string>(() => localStorage.getItem("apimeter_key") || "");
+  const [apiKey, setApiKey] = useState<string>(() => safeGetLocalStorage("apimeter_key"));
   const [customer, setCustomer] = useState<CustomerProfile | null>(null);
   const [summary, setSummary] = useState<UsageSummary | null>(null);
   const [history, setHistory] = useState<UsageHistoryPoint[]>([]);
@@ -305,7 +330,7 @@ export default function App() {
       } catch (err: any) {
         console.error(err);
         setAuthError(err.message || "Failed to load dashboard data. Please verify your connection.");
-        localStorage.removeItem("apimeter_key");
+        safeRemoveLocalStorage("apimeter_key");
         setApiKey("");
       } finally {
         setIsInitializing(false);
@@ -322,7 +347,7 @@ export default function App() {
       setAuthError("Invalid API key format. Keys should start with 'sk_live_'");
       return;
     }
-    localStorage.setItem("apimeter_key", trimmed);
+    safeSetLocalStorage("apimeter_key", trimmed);
     setApiKey(trimmed);
   };
 
@@ -344,7 +369,7 @@ export default function App() {
         throw new Error(err.detail || "Registration failed");
       }
       const data = await res.json();
-      localStorage.setItem("apimeter_key", data.api_key);
+      safeSetLocalStorage("apimeter_key", data.api_key);
       setApiKey(data.api_key);
     } catch (err: any) {
       setAuthError(err.message || "Registration failed");
@@ -383,7 +408,7 @@ export default function App() {
         body: JSON.stringify({ endpoint: "/v1/models/predict", units: 150 }),
       });
 
-      localStorage.setItem("apimeter_key", data.api_key);
+      safeSetLocalStorage("apimeter_key", data.api_key);
       setApiKey(data.api_key);
     } catch (err: any) {
       setAuthError("Failed to auto-provision sandbox account.");
@@ -465,7 +490,7 @@ export default function App() {
 
   // Log out / clear authentication state
   const handleDisconnect = () => {
-    localStorage.removeItem("apimeter_key");
+    safeRemoveLocalStorage("apimeter_key");
     setApiKey("");
     setCustomer(null);
     setSummary(null);
