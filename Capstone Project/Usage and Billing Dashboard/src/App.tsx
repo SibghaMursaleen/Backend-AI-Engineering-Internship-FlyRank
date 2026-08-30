@@ -1046,12 +1046,12 @@ export default function App() {
                 letterSpacing: "0.04em",
                 wordBreak: "break-all",
               }}>
-                {revealKey ? customer.api_key : `${customer.api_key.substring(0, 10)}••••••••••••••••••••`}
+                {revealKey ? apiKey : `${apiKey.substring(0, 10)}••••••••••••••••••••`}
               </div>
               <div style={{ display: "flex", gap: 8 }}>
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(customer.api_key);
+                    navigator.clipboard.writeText(apiKey);
                     alert("API key copied to clipboard!");
                   }}
                   style={{
