@@ -1,0 +1,10 @@
+{
+  "description": "Monitor API usage and costs with a clear quota meter, usage trends, and easy plan upgrades designed for developers and technical founders.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
