@@ -33,6 +33,7 @@ This repository contains the weekly assignments and implementations completed du
 | 4 | **Week 4: Unification & Auth** | Created a unified multi-DB backend and integrated user authentication via **Supabase**. |
 | 5 | **Week 5: Web Scraping & AI** | Built a polite web scraper and a FastAPI **AI Job Title Normalizer** with evaluation suites. |
 | 6 | **Week 6: Deployment & Critiques** | Implemented deployment practices and prepared systems for critique/review. |
+| 7 | **Capstone Project: Billing Engine** | Designed and built a containerized **FastAPI + Postgres + Redis** API usage metering and billing scheduler engine with **React + Vite** frontend. |
 
 ---
 
@@ -75,10 +76,16 @@ Backend-AI-Internship-FlyRank/
 │   ├── FL06-Build-Doc.pdf                         # Week 5 system build documentation
 │   └── Ship the Ugly One.pdf                      # MVP design and execution strategy
 │
-└── week 6/
-    ├── Make It Do Something.pdf                   # Core functionality validation guide
-    ├── Open It on Your Phone.pdf                  # Mobile responsiveness & preview walkthrough
-    └── Survive the Crit.pdf                       # Handling peer reviews & system optimization
+├── week 6/
+│   ├── Make It Do Something.pdf                   # Core functionality validation guide
+│   ├── Open It on Your Phone.pdf                  # Mobile responsiveness & preview walkthrough
+│   └── Survive the Crit.pdf                       # Handling peer reviews & system optimization
+│
+└── Capstone Project/
+    ├── backend/                                   # FastAPI API engine & invoicing cron jobs scheduler
+    ├── Usage and Billing Dashboard/               # React 19 + Vite + Tailwind CSS dashboard client
+    ├── docker-compose.yml                         # Relational Postgres and Cache Redis multi-container environment
+    └── README.md                                  # Detailed setup, verification, and API reference guides
 ```
 
 ---
@@ -95,6 +102,8 @@ Backend-AI-Internship-FlyRank/
 | **Docker** | Containerization of PostgreSQL, Redis, and FastAPI servers |
 | **Supabase** | Cloud authentication and user management layer |
 | **pytest** | Automated test suite and job normalization evaluations |
+| **React & Vite** | Component-driven UI dashboard utilizing Recharts for metrics plotting |
+| **Tailwind CSS** | Styling utility classes framework for premium dark-mode dashboard interfaces |
 
 ---
 
