@@ -564,7 +564,7 @@ export default function App() {
 
             <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "24px 0" }}>
               <div style={{ flex: 1, height: 1, background: C.borderFaint }} />
-              <span style={{ fontSize: 10, fontFamily: mono, color: C.faint, uppercase: true }}>Or</span>
+              <span style={{ fontSize: 10, fontFamily: mono, color: C.faint, textTransform: "uppercase" }}>Or</span>
               <div style={{ flex: 1, height: 1, background: C.borderFaint }} />
             </div>
 
