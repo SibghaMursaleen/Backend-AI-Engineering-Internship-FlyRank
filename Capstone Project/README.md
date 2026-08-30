@@ -1,8 +1,8 @@
 <h1 align="center">🔷 Usage Metering & Billing Engine</h1>
 
 <p align="center">
-  A high-performance backend infrastructure for usage metering and billing orchestration.<br/>
-  Enables real-time API event tracking, dynamic quota checks, and automated billing workflows.
+  A high-performance production-grade backend infrastructure and dashboard for API usage metering and billing orchestration.<br/>
+  Enables real-time client traffic logging, Redis-backed quota enforcement, and Stripe subscription lifecycle syncs.
 </p>
 
 <p align="center">
@@ -10,24 +10,39 @@
   <img src="https://img.shields.io/badge/Framework-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white"/>
   <img src="https://img.shields.io/badge/Database-PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white"/>
   <img src="https://img.shields.io/badge/Cache-Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white"/>
-  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Frontend-React%2019-61DAFB?style=for-the-badge&logo=react&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Orchestrator-Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white"/>
 </p>
 
 ---
 
-## 📌 Overview
+## 📌 Project Overview
 
-This project implements a backend service to track usage metering and handle billing operations for APIs. The engine records client actions, uses **Redis** to verify quotas instantly, and calculates costs. The project is fully containerized, allowing for local execution of the FastAPI server, PostgreSQL, and Redis databases.
+This capstone project is a complete usage-based billing platform designed to track client request consumption and process billing operations. It records client requests dynamically, enforces usage limits, generates invoices, and integrates with **Stripe** subscriptions. 
+
+The project includes:
+1. **FastAPI Metering Engine**: Processes high-throughput log requests, verifies limits via Redis, and writes transactional records.
+2. **APScheduler Background Service**: Periodic background scheduler performing daily Redis counter rebuilds and generating invoices for expired periods.
+3. **React + Vite Dashboard**: High-aesthetic dark-mode glassmorphic client interface allowing users to simulate API traffic, check limits, and request Stripe plan upgrades.
+4. **Stripe Integration & Local Sandbox Fallback**: Validated stripe checkout sessions and webhook updates, with a local sandbox mode for keyless billing simulation.
 
 ---
 
-## ⚙️ How It Works
+## ⚙️ Core Architecture Flow
 
-| Step | Stage | Description |
-|------|-------|-------------|
-| 1 | **Environment Setup** | Configure local database credentials, cache settings, and external key mappings using `.env`. |
-| 2 | **Services Startup** | Build and spin up the backend application, PostgreSQL database, and Redis cache via **Docker Compose**. |
-| 3 | **Connectivity Health Check** | Access the `/health` endpoint to trigger automated database connection checks and cache pings. |
+```mermaid
+graph TD
+    Client[Client App / Simulator] -->|API Key + Event| API[FastAPI Server]
+    API -->|Active Quota Check| Redis[(Redis Cache)]
+    Redis -->|Allowed / Blocked 429| API
+    API -->|Log Event| DB[(PostgreSQL)]
+    
+    Cron[APScheduler Background Jobs] -->|1. Daily Cache Sync| Redis
+    Cron -->|2. Expired Rollovers & Invoices| DB
+    
+    API -->|Stripe Checkout| Stripe[Stripe Payment Portal]
+    Stripe -->|Subscription Webhook Event| API
+```
 
 ---
 
@@ -35,100 +50,137 @@ This project implements a backend service to track usage metering and handle bil
 
 ```
 Capstone Project/
-├── docker-compose.yml             # Local multi-service infrastructure orchestrator
+├── docker-compose.yml             # Relational Postgres and Cache Redis multi-container environment
 ├── README.md                      # Setup and deployment documentation
-└── backend/                       # Python API source root
-    ├── Dockerfile                 # Container build instructions
-    ├── requirements.txt           # Python application dependencies
-    ├── .env.example               # Config template containing required environment keys
-    ├── .env                       # Active application configuration (not committed)
-    └── app/                       # FastAPI application module
-        ├── main.py                # Server startup and router registrations
-        ├── api/                   # API endpoint controllers
-        │   ├── __init__.py
-        │   └── routes.py          # /health check implementation
-        ├── core/                  # Core configurations
-        │   ├── __init__.py
-        │   └── config.py          # Pydantic Settings schema
-        ├── db/                    # Relational session configuration
-        │   ├── __init__.py
-        │   └── session.py         # SQLAlchemy Engine & session helper
-        ├── models/                # Database models folder (empty for Phase 2)
-        │   └── __init__.py
-        └── services/              # Business logic routines (empty for Phase 3/4)
-            └── __init__.py
+├── backend/                       # Python FastAPI backend core
+│   ├── Dockerfile                 # Container build instructions
+│   ├── requirements.txt           # Python application dependencies
+│   ├── app/                       # FastAPI application module
+│   │   ├── main.py                # Server lifecycle setup and CORS middleware configuration
+│   │   ├── api/                   # Controller endpoints (auth, logging, reporting, stripe checkout)
+│   │   ├── core/                  # Configurations, environment settings, and Redis connection client
+│   │   ├── db/                    # Relational session configuration
+│   │   ├── models/                # SQLAlchemy database models (Customer, Subscription, Plan, UsageEvent, Invoice)
+│   │   ├── jobs/                  # Background scheduler tasks and daily cron logic
+│   │   └── services/              # Billing costs formulas and calculation engines
+│   └── tests/                     # 21-test Pytest suite (auth, quota, stripe webhook, invoices)
+└── Usage and Billing Dashboard/   # React client frontend
+    ├── package.json               # Node.js dependencies configuration
+    ├── index.html                 # App container template
+    ├── tsconfig.json              # TypeScript compilation rules
+    └── src/
+        ├── main.tsx               # App entrypoint script
+        ├── App.tsx                # Dashboard layout, graph plotting, and api integrations
+        └── index.css              # Custom Tailwind CSS v4 styling rules
 ```
-
-> **Note:** The local `.env` configuration file is ignored by Git to prevent secrets leakage. Create it manually by copying `.env.example`.
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- **Docker** and **Docker Compose** installed on your machine.
-- Optional: **Python 3.11+** installed locally for non-container debugging.
+- **Docker Desktop** running on your host machine.
+- **Node.js** and **npm** installed locally.
 
-#### Step 1: Initialize Environment Configuration
-Copy the template `.env.example` file to create your active `.env` file:
+---
+
+### Step-by-Step Setup
+
+#### 1. Configure the Backend Environment
+Create the active `.env` file from the example configuration:
 ```bash
 cp backend/.env.example backend/.env
 ```
 
-#### Step 2: Spin Up Infrastructure and Application
-Start all services (FastAPI, Postgres, and Redis) in detached mode using Docker Compose:
+#### 2. Start the Backend Infrastructure
+Launch PostgreSQL, Redis, and the FastAPI application containers:
 ```bash
 docker compose up --build -d
 ```
 
-#### Step 3: Verify API Health Status
-Check the status of the running server and verify connection states for both Postgres and Redis:
+#### 3. Run Database Migrations and Seeding
+Upgrade the database schema to the latest migration and seed default billing plans (`free` and `pro`):
 ```bash
-curl http://localhost:8000/health
+# Run schema migration
+docker compose exec api alembic upgrade head
+
+# Seed default plans
+docker compose exec api python -m app.seed
 ```
 
-Expected healthy response:
-```json
-{
-  "status": "healthy",
-  "database": "connected",
-  "redis": "connected"
-}
+#### 4. Run the Backend Tests
+Run the entire Pytest suite to confirm that authorization, rate limiting, stripe checkout, and background job rules pass:
+```bash
+docker compose exec api python -m pytest -v
 ```
 
----
-
-## 🎨 Configuration Options
-
-| Option | Description | Status |
-|--------|-------------|--------|
-| `DATABASE_URL` | Relational database connection string | ✅ Active |
-| `REDIS_URL` | Redis in-memory cache connection string | ✅ Active |
-| `STRIPE_API_KEY` | Secret stripe key for billing checkouts | 💬 Placeholder |
-| `STRIPE_WEBHOOK_SECRET` | Secret key to verify Stripe webhook signatures | 💬 Placeholder |
-| `ENVIRONMENT` | Target environment designation (e.g. development, production) | ✅ Active |
-| `PROJECT_NAME` | Name displayed on FastAPI Swagger document header | ✅ Active |
+#### 5. Launch the Frontend Dashboard
+Navigate to the dashboard directory, install dependencies, and start the development server:
+```bash
+cd "Usage and Billing Dashboard"
+npm install
+npm run dev
+```
+Open your browser and navigate to the printed URL (usually **`http://localhost:8443`** or **`http://localhost:5173`**).
 
 ---
 
-## 🛠️ Tech Stack
+## 🧪 Testing the Metering & Billing Flow
 
-| Technology | Role |
-|------------|------|
-| **FastAPI** | High-performance Python web framework for API routing and request handling. |
-| **PostgreSQL** | Relational SQL database for persisting customers, invoices, subscriptions, and events. |
-| **Redis** | High-speed cache for counting and enforcing monthly quotas in real-time. |
-| **SQLAlchemy** | Modern SQL toolkit and Object-Relational Mapper (ORM) for data operations. |
-| **Docker Compose** | Multi-container orchestration tool to replicate production setup locally. |
+### 1. Register & Connect
+- On the dashboard login screen, click **"Generate Sandbox Test Profile"**.
+- This registers a customer in the PostgreSQL database, issues a secret key (`sk_live_...`), and loads the Starter Plan metrics.
+
+### 2. Simulate API Request Load
+- Go to the **API Request Simulator** panel.
+- Select a mock endpoint, set the units (e.g. `150`), and click **"Send Request Event"**.
+- You will see the **Quota Meter** progress bar advance, the **Requests Used** counter increase, and the **Estimated Bill** recalculate in real-time.
+
+### 3. Verify Quota Limit Block (HTTP 429)
+- Send a request with `1000` or more units to exceed the Starter Plan limit.
+- The simulator will display a warning:
+  > 🔴 *Quota Exceeded! Metering engine returned HTTP 429 Rate Limit block.*
+
+### 4. Test Stripe Upgrades (Sandbox Mode)
+- Click **"Upgrade to Pro"** on the Pro Plan card.
+- In sandbox mode (using `STRIPE_API_KEY=sk_test_placeholder`), this bypasses external Stripe server calls, automatically updates the plan to `pro` in the database, and reloads your dashboard instantly with a upgraded **50,000 monthly quota limit**.
+- Click **"Switch to Starter"** to downgrade back to Starter and test limit restoration.
 
 ---
 
-## 📄 License
+## 🔌 Stripe Webhook Testing (Stripe CLI)
 
-This project is released under the [MIT License](LICENSE) — free to use, modify, and distribute.
+If you configure a real Stripe Test Key in `backend/.env` and want to test webhook callbacks locally:
+
+1. **Install Stripe CLI** and login to your developer account:
+   ```bash
+   stripe login
+   ```
+2. **Forward webhook events** to your local running API service container:
+   ```bash
+   stripe listen --forward-to localhost:8000/v1/webhooks/stripe
+   ```
+3. Copy the webhook secret printed in the console (starts with `whsec_...`) and update `STRIPE_WEBHOOK_SECRET` inside `backend/.env`.
+4. Trigger test checkout events in another terminal:
+   ```bash
+   stripe trigger checkout.session.completed
+   ```
+
+The FastAPI webhook router will intercept the event, identify the customer, and update the active subscription status accordingly.
+
+---
+
+## 💡 Demonstrated Concepts
+
+- **API Design**: High-throughput REST API utilizing FastAPI dependencies injection, schemas mapping, and custom response encoders.
+- **Relational Databases**: Alembic migrations, database indexes, and relational models managed via SQLAlchemy.
+- **Cache Management**: Fast Redis counter querying and active PostgreSQL counter rebuilds on cache misses.
+- **Background Schedulers**: Idiomatic scheduling of daily Redis counter rebuilds and invoicing cron tasks.
+- **Payment Orchestration**: Complete customer mapping, checkout session generation, and webhook listening logic.
+- **React Frontend**: Clean component separation, state hooks, localStorage sandbox safety wrappers, and charting via Recharts.
 
 ---
 
 <p align="center">
-  Built with 🐍 Python &nbsp;·&nbsp; Usage Metering & Billing Engine Capstone
+  Built with 💙 by Sibgha Mursaleen & Antigravity
 </p>
