@@ -145,10 +145,10 @@ function StatCard({ label, value, sub, accent }: { label: string; value: string;
 
 // ── Plan Card ────────────────────────────────────────────────────────────────
 function PlanCard({
-  name, price, features, current, onUpgrade, loading,
+  name, price, features, current, onUpgrade, loading, buttonText,
 }: {
   name: string; price: string; features: string[]; current: boolean;
-  onUpgrade?: () => void; loading?: boolean;
+  onUpgrade?: () => void; loading?: boolean; buttonText?: string;
 }) {
   const isPro = name === "Pro";
   return (
@@ -207,7 +207,7 @@ function PlanCard({
         }}
           onMouseEnter={e => { if (!loading) e.currentTarget.style.background = C.amberHover; }}
           onMouseLeave={e => { if (!loading) e.currentTarget.style.background = C.amber; }}>
-          {loading ? "Redirecting to checkout..." : "Upgrade to Pro"}
+          {loading ? "Processing..." : (buttonText || (name === "Pro" ? "Upgrade to Pro" : "Switch to Starter"))}
         </button>
       )}
 
@@ -489,6 +489,29 @@ export default function App() {
       }
     } catch (err: any) {
       alert(err.message || "Failed to initiate Stripe Checkout.");
+    } finally {
+      setUpgradeLoading(false);
+    }
+  };
+
+  const handleDowngrade = async () => {
+    if (!apiKey) return;
+    setUpgradeLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/v1/billing/downgrade`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${apiKey}` },
+      });
+      if (!res.ok) throw new Error("Failed to downgrade subscription.");
+      
+      alert("Subscription downgraded to Starter (Free) Plan successfully!");
+      
+      // Refresh Stats
+      const headers = { "Authorization": `Bearer ${apiKey}` };
+      const resStats = await fetch(`${API_BASE}/v1/usage/summary`, { headers });
+      if (resStats.ok) setSummary(await resStats.json());
+    } catch (err: any) {
+      alert(err.message || "Failed to downgrade subscription.");
     } finally {
       setUpgradeLoading(false);
     }
@@ -957,6 +980,9 @@ export default function App() {
             name="Starter"
             price="$0"
             current={!isPro}
+            buttonText="Switch to Starter"
+            onUpgrade={handleDowngrade}
+            loading={upgradeLoading}
             features={["1,000 requests / month", "Overage costs: $0.05 / unit", "Standard Web API access"]}
           />
           <PlanCard

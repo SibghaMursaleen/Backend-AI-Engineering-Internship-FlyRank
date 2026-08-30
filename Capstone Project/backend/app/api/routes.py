@@ -323,6 +323,24 @@ def get_usage_history(
 
 # --- Stripe Payment Integration endpoints ---
 @router.post(
+    "/v1/billing/downgrade",
+    tags=["Billing"]
+)
+def downgrade_to_free(
+    customer: Customer = Depends(get_current_customer),
+    db: Session = Depends(get_db)
+):
+    sub = db.query(Subscription).filter(
+        Subscription.customer_id == customer.id,
+        Subscription.status == "active"
+    ).first()
+    if sub:
+        sub.plan_id = "free"
+        db.commit()
+    return {"status": "success"}
+
+
+@router.post(
     "/v1/billing/checkout",
     tags=["Billing"]
 )
